@@ -1,0 +1,83 @@
+Radek's find (rfind) User Manual
+================================
+
+Requirements
+------------
+- cmake
+- gcc (or other compatible compiler)
+- find(1) (for tests)
+
+
+Building
+--------
+
+$ mkdir build; cd build
+$ cmake ..
+$ make
+# make install
+
+
+Tests
+-----
+
+The project includes several test cases to compare rfind(1) and find(1) outputs.
+
+$ make test
+
+To see the details, run
+
+$ ctest -V
+
+
+Usage
+-----
+
+$ rfind [-H] [-L] [-P] [path...] [expression]
+
+Symbolic links handling options. Multiple options can be set, but only the last
+is used.
+
+  -P    Never follow symbolic links. This is the default behavior.
+  -L    Follow symbolic links.
+  -H    Follow symbolic link only of the provided paths.
+
+Default path is the current directory.
+Default expression is -print, expression may consist of OPERATORS, FILTERS and
+ACTIONS.
+
+OPERATORS (decreasing precedence):
+    ( EXPR )
+    ! EXPR  -not EXPR
+    EXPR1 -a EXPR2  EXPR1 -and EXPR2
+    EXPR1 -o EXPR2  EXPR1 -or EXPR2
+
+TESTS:
+    -empty
+            The file is empty.
+    -iname PATTERN
+            Same as -name, but the match is case insensitive.
+    -name PATTERN
+           Filter files by their name matching the shell PATTERN. Only the name
+           is matched, not the directory. The metacharacters include `*', `?',
+           and `[]'.  Don't forget to enclose the pattern in quotes in order to
+           protect it from expansion by the shell.
+
+ACTIONS:
+    -print0
+            Print the full file name on the standard output followed by a null
+            character.
+    -print
+            Print the full file name on the standard output, followed by a
+            newline. This is the default action when no action is specified.
+
+
+Differences to find(1)
+----------------------
+
+- The list of rfind(1)'s filters and actions is very limited for now.
+- rfind(1) does not support positional and normal find(1)'s options except
+  --help and --version.
+- The expressions format does not accept the ',' (comma) operator.
+- All the operators in expression must be explicit, the -and operator is not
+  added implicitly.
+

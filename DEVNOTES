@@ -1,0 +1,50 @@
+rfind(1) - Developer Notes
+==========================
+
+The rfind(1) core processes command line arguments to (separately, in this
+order):
+1. get know symbolic links handling,
+2. get the list of paths to process,
+3. evaluate expression with tests and action on each file in the provided paths
+   (recursively).
+
+The expression is expected in the infix form. Internally, it is converted to
+the postfix list and then into evaluation tree applied on each file. The tests
+and actions found in the expression are evaluated via callbacks provided by the
+test/action modules.
+
+When processing files, when the access to the file information is denied, the
+file is skipped, but processing continues.
+
+Symbolic links loops are detected and processing continues with the next file.
+
+
+Modules
+-------
+
+The tests and action information are kept in separated arrays expr_tests[] and
+expr_actions[] which are initialized in expressions.c. The required module
+information includes (XXX stands for 'test' or 'action'):
+
+struct expr_XXX {
+    const char *id;        /**< identifier - name of the command line option */
+    const char *help;      /**< help string */
+    expr_XXX_clb test;     /**< XXX callback */
+    enum expr_arg arg;     /**< hint about the XXX's argument presence */
+};
+
+The test modules can be found in src/test_* files and action modules are in
+src/action_* files.
+
+The present -name module is implemented using fnmatch(3) function.
+
+Adding New Module
+.................
+
+1. Implement callback function in src/XXX_NAME.c file
+2. Add the source file into CMakeList.txt into the sources list
+3. Add the module's index into expr_XXX_id enumeration in expressions.h
+4. Add the module's information into expr_XXXs array initialization in
+   expressions.c. Remember to put it on the same index as added in step 3.
+4. Recompile and use.
+
